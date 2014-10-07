@@ -37,7 +37,7 @@
 
 <!-- Begin slides. Just make elements with a class of slide. -->
 
-<section class="slide title">
+<section class="slide title intro">
     <h1>Scaling OpenWPM</h1>
 
     <div class="authors">
@@ -46,11 +46,11 @@
     </div>
 </section>
 
-<section class="slide">
+<section class="slide intro">
     <h1>Background</h1>
 </section>
 
-<section class="slide">
+<section class="slide intro">
     <h2>What is OpenWPM?</h2>
 
     <p>
@@ -65,7 +65,7 @@
         <p><cite>https://citp.princeton.edu/webtransparency/</cite></p>
     </blockquote>
 </section>
-<section class="slide">
+<section class="slide intro">
     <h1>The Problems<p class="aside">(and some early ideas for solutions)</p></h1>
 
 </section>
@@ -78,7 +78,7 @@
     <h2>One-Click Reproducibility</h2>
 
     <p>How do we let researchers distribute their experiments so that others can run them to verify results?</p>
-    <p>How do you ship</p>
+    <p class>How do you ship</p>
     <ul>
         <li>The OpenWPM environment</li>
         <li>Researcher configurations</li>
@@ -86,7 +86,7 @@
     </ul>
 </section>
 <section class="slide oneclick">
-    <h2 ><span class="subheading">One-Click Reproducibility:</span> Currently</h2>
+    <h2><span class="subheading">One-Click Reproducibility:</span> Currently</h2>
     <ul class="goodbadlist">
         <li class="slide">
             Single script that takes a text file input and dumps results to an sqlite database
@@ -94,7 +94,7 @@
         <li class="slide">
             Experiments created by
             <ol class="goodbadlist">
-                <li class="good">Changing the input to <code>simple_crawl.py</code> and writing separate analysis scripts (Best Case)
+                <li class="good">Changing the input to <code>simple_crawl.py</code> and writing separate analysis scripts <span class="aside">Best Case</span>
                 </li>
                 <li class="slide bad">Forking the project to add desired features</li>
             </ol>
@@ -134,12 +134,12 @@
 <section class="slide oneclick">
     <h2><span class="subheading">One-Click Reproducibility:</span> RPC over Command Architecture </h2>
     <ul>
-        <li>Instead of developing entire language, just use python!</li>
-        <li>Give researchers control over the instrumentation while isolating them from crashes by wrapping Selenium for
+        <li class="slide">Instead of developing entire language, just use python!</li>
+        <li class="slide">Give researchers control over the instrumentation while isolating them from crashes by wrapping Selenium for
             <i>RPC</i></li>
-        <li>Python's Pyro to the rescue!</li>
+        <li class="slide">Python's Pyro to the rescue!</li>
     </ul>
-    <div class="split">
+    <div class="split slide">
         <div>
         <pre class="prettyprint">
             <code class="lang-python">
@@ -192,14 +192,14 @@ def childproc(pipe):
             <li>Inspiration from Unit Test libraries</li>
         </ul>
         </li>
-        <li>
+        <li class="slide">
             Researchers distribute only the code unique to their experiment
         </li>
-        <li>
+        <li class="slide">
             Abstracts underlying system while giving fine grain control
         </li>
-        <li>
-            Lets the research scripts exist agnostic of the underlying provider of the framework (important later)
+        <li class="slide">
+            Lets the research scripts exist agnostic of the underlying provider of the framework <span class="aside">important later</span>
         </li>
 
     </ul>
@@ -208,17 +208,17 @@ def childproc(pipe):
     <h2><span class="subheading">One-Click Reproducibility:</span> Environment Setup</h2>
     <div class="split">
         <div><ul>
-            <li>Docker for OpenWPM
+            <li id="docker-slide">Docker for OpenWPM
                 <ul>
                     <li>Fast Deployment to new machines</li>
                     <li>Dependency resolution built in</li>
-                    <li>Emerging standard in cloud computing (very handy for scaling)</li>
+                    <li>Emerging standard in cloud computing <span class="aside">very handy for scaling</span></li>
                 </ul>
             </li>
             <li>OpenWPM as a <i>pip</i> package</li>
         </ul></div>
         <div>
-            <img src="http://upload.wikimedia.org/wikipedia/commons/7/79/Docker_(container_engine)_logo.png" />
+            <img class="docker" src="http://upload.wikimedia.org/wikipedia/commons/7/79/Docker_(container_engine)_logo.png" />
             <pre class="pretty-print">
                 <code class="lang-bash">
 $ pip install OpenWPM
@@ -240,7 +240,7 @@ $ pip install OpenWPM
         <div>
             <ul>
                 <li>
-                    Average website
+                    Average website <span class="aside">As of Oct 1, 2014</span>
                     <ul>
                         <li>1899kB</li>
                         <li>99 separate HTTP requests</li>
@@ -355,7 +355,7 @@ $ pip install OpenWPM
                             VCDIFF Generic Difference and Compression Data Format
                         </li>
                         <li>
-                            22% reduction in HTTP response bodies (87% reduction for all delta-compressible strings)
+                            22% reduction in HTTP response bodies <span class="aside">87% reduction for all delta-compressible strings</span>
                             <ul>
                                 <li><cite><a href="http://www.hpl.hp.com/techreports/Compaq-DEC/WRL-97-4.pdf"> Mogul, Douglis, Feldmann, Krishnamurthy</a></cite></li>
                             </ul>
@@ -379,31 +379,31 @@ $ pip install OpenWPM
     <ul>
         <li>SQLite not up to task
             <ul>
-                <li>Max db size: 2TB (smaller if os has filesize limit)</li>
-                <li>Poor performance with large statements (attempts to keep in memory)</li>
+                <li>Max db size: 2TB <span class="aside">smaller if os has filesize limit</span></li>
+                <li>Poor performance with large statements <span class="aside">attempts to keep in memory</span></li>
             </ul>
         </li>
-        <li>
+        <li class="slide">
             Relational Databases
             <ul class="goodbadlist">
-                <li class="good">Fully normalized data could lead to de-duplication techniques</li>
-                <li class="good">Data modeling is straight forward</li>
-                <li class="good">Built in Query (SQL)</li>
-                <li class="bad">Scale Up Architecture</li>
-                <li>Scale Out Architecture (sharding)
+                <li class="good slide">Fully normalized data could lead to de-duplication techniques</li>
+                <li class="good slide">Data modeling is straight forward</li>
+                <li class="good slide">Built in Query <span class="aside">SQL</span></li>
+                <li class="bad slide">Scale Up Architecture</li>
+                <li class="slide">Scale Out Architecture <span class="aside">sharding</span>
                     <ul class="goodbadlist">
-                        <li class="bad">Costly re-allocation of databse</li>
+                        <li class="bad">Costly re-allocation of database</li>
                     </ul>
                 </li>
             </ul>
         </li>
-        <li>
+        <li class="slide">
             Big Table Databases
             <ul class="goodbadlist">
-                <li class="good">De-normalized data, easy to delta encode</li>
-                <li class="good">Fast read and write of full data sets (no joins)</li>
-                <li class="good">Scale out architecture</li>
-                <li class="bad">No Built in Query language</li>
+                <li class="good slide">De-normalized data, easy to delta encode</li>
+                <li class="good slide">Fast read and write of full data sets <span class="aside">no joins</span></li>
+                <li class="good slide">Scale out architecture</li>
+                <li class="bad slide">No Built in Query language</li>
             </ul>
         </li>
     </ul>
