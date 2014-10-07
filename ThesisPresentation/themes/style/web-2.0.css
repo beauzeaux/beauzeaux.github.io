@@ -546,3 +546,26 @@ section.timequestions::before {
     top:70%;
     opacity:.2;
 }
+
+span.aside::before {
+    content: '('
+}
+span.aside::after {
+    content: ')'
+}
+span.aside {
+    color: #a3a3a3;
+    font-size: 60%;
+}
+
+.on-slide-31 img.docker {
+    opacity: 100;
+}
+
+section.intro::before {
+    content: url('../../images/citp.png');
+    z-index:-1;
+    position:fixed;
+    top:65%;
+    opacity:.2;
+}
