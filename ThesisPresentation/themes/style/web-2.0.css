@@ -316,26 +316,8 @@ pre {
   border-radius: 5px;
   /* http://nicolasgallagher.com/css-drop-shadows-without-images/ */
 }
-.csstransforms.boxshadow pre > :first-child:before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  background: #fff;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
-.csstransforms.boxshadow pre:before, .csstransforms.boxshadow pre:after {
-  content: "";
-  position: absolute;
-  z-index: -2;
-  bottom: 15px;
-  width: 50%;
-  height: 20%;
-  max-width: 300px;
-  box-shadow: 0 15px 10px rgba(0, 0, 0, 0.7);
-}
+
+
 .csstransforms.boxshadow pre:before {
   left: 10px;
   -webkit-transform: rotate(-3deg);
@@ -469,8 +451,7 @@ p.aside {
 }
 
 span.subheading {
-    color: #333333;
-    opacity: .6;
+    color: #888888;
     font-size:80%;
 }
 
@@ -485,4 +466,83 @@ table#timeline tr:nth-child(even) {
 table#timeline tr td:first-child {
     font-size:120%;
     border-right: 3px solid black;
+}
+.goodbadlist {
+    padding-left: 1em;
+    text-indent: -.4em;
+    list-style:None;
+}
+.goodbadlist li.good:before{
+    font-family: FontAwesome;
+    content: '\f00c';
+    color: lawngreen;
+    margin: 0 .5em 0 -1.2em;
+}
+
+.goodbadlist li.bad:before{
+    font-family: FontAwesome;
+    content: '\f057';
+    color: red;
+    margin: 0 .5em 0 -1.2em;
+}
+
+section.oneclick::before {
+    font-family: FontAwesome;
+    content:'\f0c5';
+    font-size:900%;
+    color: #0b7495;
+    z-index:-1;
+    position:fixed;
+    top:75%;
+    opacity:.1;
+}
+
+section.bigdata::before {
+    content:'0101011';
+    font-size:900%;
+    color: #0b7495;
+    z-index:-1;
+    position:fixed;
+    top:75%;
+    opacity:.1;
+}
+
+section.success::before {
+    font-family: FontAwesome;
+    content:'\f00c';
+    font-size:900%;
+    color: green;
+    z-index:-1;
+    position:fixed;
+    top:70%;
+    opacity:.2;
+}
+
+section.title div.authors {
+    position:fixed;
+    bottom:0px;
+}
+section.title div.authors span.prefix {
+    font-size:80%;
+    font-weight: 200;
+}
+
+div.split div {
+    float: left;
+    width: 50%;
+}
+
+cite.small {
+    font-size: 30%;
+}
+
+
+section.timequestions::before {
+    font-family: FontAwesome;
+    content:'\f073';
+    font-size:900%;
+    z-index:-1;
+    position:fixed;
+    top:70%;
+    opacity:.2;
 }

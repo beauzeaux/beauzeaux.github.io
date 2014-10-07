@@ -9,6 +9,7 @@
 
     <!-- Required stylesheet -->
     <link rel="stylesheet" media="screen" href="core/deck.core.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 
     <!-- Extension CSS files go here. Remove or add as needed. -->
     <link rel="stylesheet" media="screen" href="extensions/goto/deck.goto.css">
@@ -17,29 +18,31 @@
     <link rel="stylesheet" media="screen" href="extensions/status/deck.status.css">
     <link rel="stylesheet" media="screen" href="extensions/scale/deck.scale.css">
 
+
     <!-- Style theme. More available in /themes/style/ or create your own. -->
     <link rel="stylesheet" media="screen" href="themes/style/web-2.0.css">
 
     <!-- Transition theme. More available in /themes/transition/ or create your own. -->
-    <link rel="stylesheet" media="screen" href="themes/transition/horizontal-slide.css">
+    <link rel="stylesheet" media="screen" href="themes/transition/fade.css">
 
     <!-- Basic black and white print styles -->
     <link rel="stylesheet" media="print" href="core/print.css">
 
     <!-- Required Modernizr file -->
     <script src="modernizr.custom.js"></script>
+    <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"></script>
 </head>
 <body>
 <div class="deck-container">
 
 <!-- Begin slides. Just make elements with a class of slide. -->
 
-<section class="slide">
-    <h1>Incremental Improvements on OpenWPM</h1>
+<section class="slide title">
+    <h1>Scaling OpenWPM</h1>
 
     <div class="authors">
         <h4>Nick Beaulieu</h4>
-        <span class="prefix">Advisor:</span><h4>Dr. Joeseph Bonneau</h4>
+        <span class="prefix">Advisor:</span><h5>Dr. Joeseph Bonneau CITP</h5>
     </div>
 </section>
 
@@ -66,151 +69,251 @@
     <h1>The Problems<p class="aside">(and some early ideas for solutions)</p></h1>
 
 </section>
+
 <!-- Begin One Click Repro -->
-<section class="slide">
+<section class="slide oneclick">
     <h1><span class="subheading">Problem 1: </span><br/>One-Click Reproducibility</h1>
 </section>
-<section class="slide">
+<section class="slide oneclick">
     <h2>One-Click Reproducibility</h2>
 
     <p>How do we let researchers distribute their experiments so that others can run them to verify results?</p>
-</section>
-<section class="slide">
-    <h2><span class="subheading">One-Click Reproducibility:</span> Currently</h2>
+    <p>How do you ship</p>
     <ul>
-        <li>
-            Single crawl script that takes a text file input and dumps results to an sqlite database
+        <li>The OpenWPM environment</li>
+        <li>Researcher configurations</li>
+        <li>Analysis scripts</li>
+    </ul>
+</section>
+<section class="slide oneclick">
+    <h2 ><span class="subheading">One-Click Reproducibility:</span> Currently</h2>
+    <ul class="goodbadlist">
+        <li class="slide">
+            Single script that takes a text file input and dumps results to an sqlite database
         </li>
-        <li>
-            Experiments created by one of two means
-            <ol>
-                <li>Changing the input to <code>simple_crawl.py</code> and writing separate analysis scripts (Best Case)
-                    which are then distributed
+        <li class="slide">
+            Experiments created by
+            <ol class="goodbadlist">
+                <li class="good">Changing the input to <code>simple_crawl.py</code> and writing separate analysis scripts (Best Case)
                 </li>
-                <li>Forking the project to add desired features and distributing a full source copy of the project</li>
+                <li class="slide bad">Forking the project to add desired features</li>
             </ol>
         </li>
-        <li>
-            Running the analysis (on ubuntu) involves installing packages from both <i>apt</i> and <i>pip</i> then
-            running the distributed scripts.
+        <li class="slide bad">
+            Slow setup due to dependencies from both pip and system package manager
         </li>
-        <li>
-            Architecture is built around <i>Commands</i> which abstract away the details of the underlying
-            instrumentation.
+        <li class="slide good">
+            Architecture is built around <i>Commands</i>
+            <ul class="goodbadlist">
+                <li class="slide good">Abstracts away details of instrumentation</li>
+                <li class="slide good">Possible fast way to distribute experiments</li>
+            </ul>
         </li>
     </ul>
 </section>
-<section class="slide">
+<section class="slide oneclick">
     <h2><span class="subheading">One-Click Reproducibility:</span> Command Architecture</h2>
-    <ul>
-        <li>
+    <ul class="goodbadlist">
+        <li class="good slide">
             Simple language that takes in strings of commands for crawling
         </li>
-        <li>
+        <li class="good slide">
             Lets the crawling and proxy layers run and crash gracefully without crashing OpenWPM
         </li>
-        <li>
+        <li class="good slide">
             Can be used to perform log-and-replay of research
         </li>
-        <li>
+        <li class="bad slide">
             Not feature complete
         </li>
-        <li>
+        <li class="bad slide">
             Adds a non-extensible layer of abstraction between the researcher and the instrumentation.
         </li>
     </ul>
 </section>
-<section class="slide">
+<section class="slide oneclick">
     <h2><span class="subheading">One-Click Reproducibility:</span> RPC over Command Architecture </h2>
     <ul>
-        <li>Instead of developing entire language, just use python</li>
+        <li>Instead of developing entire language, just use python!</li>
         <li>Give researchers control over the instrumentation while isolating them from crashes by wrapping Selenium for
             <i>RPC</i></li>
         <li>Python's Pyro to the rescue!</li>
     </ul>
+    <div class="split">
+        <div>
+        <pre class="prettyprint">
+            <code class="lang-python">
+import Pyro4
+...
+
+def main()
+    parent_con, child_con = Pipe()
+    p = Process(target=childproc,
+                args=(child_con,))
+    p.start();
+    url = parent_con.recv();
+    print "Pyro4 url: {0}".format(url)
+
+    #now get the object
+    webdriver = Pyro4.Proxy(url)
+
+    webdriver.get("http://www.python.org")
+    print "Title: {0}".format(webdriver.title)
+            </code>
+        </pre>
+        </div>
+        <div>
+            <pre class="prettyprint">
+                <code>
+#subprocess code for creating a browser
+def childproc(pipe):
+    display = Display(visible=0)
+    display.start()
+    firefox = webdriver.Firefox()
+    #above should look familiar
+
+    daemon=Pyro4.Daemon()
+    url=daemon.register(firefox)
+    pipe.send(url)
+    daemon.requestLoop()
+                </code>
+            </pre>
+        </div>
+    </div>
+
 </section>
-<section class="slide">
-    <h2><span class="subheading">One-Click Reproducibility:</span> Environment Setup</h2>
+<section class="slide oneclick">
+    <h2><span class="subheading">One-Click Reproducibility:</span> Framework</h2>
     <ul>
-        <li>Docker for OpenWPM for fast deployment</li>
-        <li>OpenWPM as a <i>pip</i> package</li>
+        <li>Inversion of Control
+        <ul>
+            <li>Let OpenWPM be a framework for researchers</li>
+            <li>Invert control to allow framework to call researcher code</li>
+            <li>Inspiration from Unit Test libraries</li>
+        </ul>
+        </li>
+        <li>
+            Researchers distribute only the code unique to their experiment
+        </li>
+        <li>
+            Abstracts underlying system while giving fine grain control
+        </li>
+        <li>
+            Lets the research scripts exist agnostic of the underlying provider of the framework (important later)
+        </li>
+
     </ul>
+</section>
+<section class="slide oneclick">
+    <h2><span class="subheading">One-Click Reproducibility:</span> Environment Setup</h2>
+    <div class="split">
+        <div><ul>
+            <li>Docker for OpenWPM
+                <ul>
+                    <li>Fast Deployment to new machines</li>
+                    <li>Dependency resolution built in</li>
+                    <li>Emerging standard in cloud computing (very handy for scaling)</li>
+                </ul>
+            </li>
+            <li>OpenWPM as a <i>pip</i> package</li>
+        </ul></div>
+        <div>
+            <img src="http://upload.wikimedia.org/wikipedia/commons/7/79/Docker_(container_engine)_logo.png" />
+            <pre class="pretty-print">
+                <code class="lang-bash">
+$ pip install OpenWPM
+                </code>
+            </pre>
+        </div>
+        </div>
 </section>
 <!-- End One Click Repro -->
 
 <!-- Begin Big Data -->
-<section class="slide">
+<section class="slide bigdata">
     <h1><span class="subheading">Problem 2: </span><br/>Big Data <p class="aside">(Really Big Data)</p></h1>
 </section>
 
-<section class="slide">
+<section class="slide bigdata">
     <h2><span class="subheading">Big Data:</span> Currently</h2>
-    <ul>
-        <li>
-            Average website
-            <ul>
-                <li>1899kB</li>
-                <li>99 separate HTTP requests</li>
-                <li><cite>HTTP Archive <a href="http://httparchive.org/trends.php">http://httparchive.org/trends.php</a></cite>
-                </li>
-            </ul>
-        </li>
-        <li>
-            Crawls of 10,000+ sites
+    <div class="split">
+        <div>
             <ul>
                 <li>
-                    single measurement
+                    Average website
+                    <ul>
+                        <li>1899kB</li>
+                        <li>99 separate HTTP requests</li>
+                        <li><cite>HTTP Archive <a href="http://httparchive.org/trends.php">http://httparchive.org/trends.php</a></cite>
+                        </li>
+                    </ul>
                 </li>
                 <li>
-                    ~1M separate HTTP requests
-                </li>
-                <li>
-                    ~10GB of data
-                </li>
-            </ul>
-        </li>
-    </ul>
-
-</section>
-<section class="slide">
-    <h2><span class="subheading">Big Data:</span> Goal</h2>
-    <ul>
-        <li>
-            Longitudinal Studies
-            <ul>
-                <li>
-                    Periodically repeat measurement
-                </li>
-                <li>
-                    ~2MB / site
-                </li>
-                <li>
-                    ~130MB / site when measured every week for a year
-                </li>
-                <li>
-                    For Longitudinal study of 10k sites
+                    Crawls of 10,000+ sites
                     <ul>
                         <li>
-                            ~1TB of data / year
+                            single measurement
+                        </li>
+                        <li>
+                            ~1M separate HTTP requests
+                        </li>
+                        <li>
+                            ~10GB of data
                         </li>
                     </ul>
                 </li>
             </ul>
-        </li>
-        <li>
-            Large Studies
-            <ul>
-                <li>
-                    1M+ sites / crawl
-                </li>
-                <li>
-                    ~2TB of data / crawl
-                </li>
-            </ul>
-        </li>
-    </ul>
+        </div>
+        <div>
+            <img src="http://upload.wikimedia.org/wikipedia/commons/f/f8/Laptop-hard-drive-exposed.jpg" />
+        </div>
+    </div>
+
+
 </section>
-<section class="slide">
+<section class="slide bigdata">
+    <h2><span class="subheading">Big Data:</span> Goal</h2>
+    <div class="split">
+        <div><ul>
+            <li>
+                Longitudinal Studies
+                <ul>
+                    <li>
+                        Periodically repeat measurement
+                    </li>
+                    <li>
+                        ~2MB / site
+                    </li>
+                    <li>
+                        ~130MB / site when measured every week for a year
+                    </li>
+                    <li>
+                        For Longitudinal study of 10k sites
+                        <ul>
+                            <li>
+                                ~1TB of data / year
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Large Studies
+                <ul>
+                    <li>
+                        1M+ sites / crawl
+                    </li>
+                    <li>
+                        ~2TB of data / crawl
+                    </li>
+                </ul>
+            </li>
+        </ul></div>
+        <div><img src="http://www.mtesolutionsllc.com/images/data%20centers/155667482.jpg" /></div>
+    </div>
+
+</section>
+<section class="slide bigdata">
     <h2><span class="subheading">Big Data:</span> Questions</h2>
     <ul>
         <li>
@@ -232,7 +335,7 @@
         </li>
     </ul>
 </section>
-<section class="slide">
+<section class="slide bigdata">
     <h2><span class="subheading">Big Data:</span> Compression</h2>
     <ul>
         <li>Observation: Most time series data is similar</li>
@@ -240,7 +343,7 @@
             Delta Encoding
             <ul>
                 <li>
-                    Take one datum and only store the difference between it and the prior datum
+                    Store only differences
                 </li>
                 <li>
                     Already tested on HTTP data
@@ -254,8 +357,7 @@
                         <li>
                             22% reduction in HTTP response bodies (87% reduction for all delta-compressible strings)
                             <ul>
-                                <li><cite>Mogul, Douglis, Feldmann, Krishnamurthy</cite></li>
-                                <li><cite>http://www.hpl.hp.com/techreports/Compaq-DEC/WRL-97-4.pdf</cite></li>
+                                <li><cite><a href="http://www.hpl.hp.com/techreports/Compaq-DEC/WRL-97-4.pdf"> Mogul, Douglis, Feldmann, Krishnamurthy</a></cite></li>
                             </ul>
                         </li>
                     </ul>
@@ -272,7 +374,7 @@
     </ul>
     </ul>
 </section>
-<section class="slide">
+<section class="slide bigdata">
     <h2><span class="subheading">Big Data:</span> Storage</h2>
     <ul>
         <li>SQLite not up to task
@@ -283,60 +385,77 @@
         </li>
         <li>
             Relational Databases
-            <ul>
-                <li>Fully normalized data could lead to de-duplication techniques</li>
-                <li>Data modeling is straight forward</li>
-                <li>Built in Query (SQL)</li>
-                <li>Scale Up Architecture</li>
+            <ul class="goodbadlist">
+                <li class="good">Fully normalized data could lead to de-duplication techniques</li>
+                <li class="good">Data modeling is straight forward</li>
+                <li class="good">Built in Query (SQL)</li>
+                <li class="bad">Scale Up Architecture</li>
                 <li>Scale Out Architecture (sharding)
-                    <ul>
-                        <li>Costly re-allocation of databse</li>
+                    <ul class="goodbadlist">
+                        <li class="bad">Costly re-allocation of databse</li>
                     </ul>
                 </li>
             </ul>
         </li>
         <li>
             Big Table Databases
-            <ul>
-                <li>De-normalized data, easy to delta encode</li>
-                <li>Fast read and write of full data sets (no joins)</li>
-                <li>Scale out architecture</li>
-                <li>No Built in Query language</li>
+            <ul class="goodbadlist">
+                <li class="good">De-normalized data, easy to delta encode</li>
+                <li class="good">Fast read and write of full data sets (no joins)</li>
+                <li class="good">Scale out architecture</li>
+                <li class="bad">No Built in Query language</li>
             </ul>
         </li>
     </ul>
 </section>
-<section class="slide">
+<section class="slide bigdata">
     <h2><span class="subheading">Big Data:</span> Map/Reduce</h2>
-    <ul>
-        <li>Strategy for dealing with large data sets</li>
-        <li>Functional programming applied to embarassingly parallelizable tasks</li>
-        <li>Can easily implement all query strings, sans joins</li>
-    </ul>
+    <div class="split">
+        <div><ul>
+            <li>Strategy for dealing with large data sets</li>
+            <li>Functional programming applied to embarassingly parallelizable tasks</li>
+            <li>Can easily implement all query strings, sans joins</li>
+        </ul></div>
+        <div><h4>Hadoop Map Reduce Diagram</h4><img src="http://www.cs.uml.edu/~jlu1/doc/source/report/img/MapReduceExample.png" /><cite class="small">http://www.cs.uml.edu/~jlu1/doc/source/report/img/MapReduceExample.png</cite></div>
+    </div>
 </section>
-<section class="slide">
+<section class="slide bigdata">
     <h2><span class="subheading">Big Data:</span> Possible Architecture</h2>
+    <div class="split">
+        <div><ul>
+            <li>Apache Cassandra + Apache Spark</li>
+            <li>
+                <ul>
+                    <li>Cassandra: Big Table inspired Database</li>
+                    <li>Spark: Next generation Map/Reduce platform replacing Hadoop</li>
+                </ul>
+            </li>
+            <li>
+                Linear scaling from single machine to multi-node clusters
+            </li>
+            <li>
+                Used by tech giants such as Netflix to store and process data
+            </li>
+        </ul></div>
+        <div>
+            <img src="http://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Cassandra_logo.svg/1280px-Cassandra_logo.svg.png" height="400px"/>
+            <img src="http://docs.sigmoidanalytics.com/images/c/ce/Sparkimage.png" />
+        </div>
+    </div>
+
+</section>
+<section class="slide success">
+    <h2>Success Criteria</h2>
     <ul>
-        <li>Apache Cassandra + Apache Spark</li>
-        <li>
-            <ul>
-                <li>Cassandra: Big Table inspired Database</li>
-                <li>Spark: Next generation Map/Reduce platform replacing Hadoop</li>
-            </ul>
-        </li>
-        <li>
-            Linear scaling from single machine to multi-node clusters
-        </li>
-        <li>
-            Used by tech giants such as Netflix to store and process data
-        </li>
+        <li>Delta Encoding increases data density enough for longitudinal studies</li>
+        <li>RPC code accepted and merged into OpenWPM</li>
+        <li>Can setup OpenWPM environment in under 5 minutes on a fresh machine</li>
     </ul>
 </section>
-
-<section class="slide">
-    <h1>Timeline</h1>
+<section class="slide timequestions">
+    <h1>Timeline<br /> & Questions</h1>
 </section>
-<section class="slide">
+<section class="slide timequestions">
     <table id="timeline">
         <tr>
             <th>Date</th>
